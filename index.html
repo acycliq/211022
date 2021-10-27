@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-128060564-7"></script>
+    <script>
+        var host = window.location.hostname;
+        if (host != 'localhost') {
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+
+            gtag('js', new Date());
+            gtag('config', 'UA-128060564-7');
+        }
+    </script>
+
+    <title>3D viewer (draft)</title>
+
+    <!--This is important to get a correct canvas size on mobile-->
+    <meta name='viewport' content='width=device-width, user-scalable=no'/>
+
+    <!-- TinyColor -->
+    <script src="src/lib/js/tinycolor.js"></script>
+
+    <!--jquery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="src/lib/css/bootstrap.min.css">
+    <script src="src/lib/js/bootstrap.min.js"></script>
+
+    <!--d3 -->
+    <script src='https://d3js.org/d3.v4.min.js'></script>
+
+    <!-- leaflet v 1.0.3 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet-src.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.7.0/Tween.js"></script>
+
+<!--    rbush3d-->
+    <script src="https://unpkg.com/rbush-3d@0.0.4/dist/rbush3d.min.js"></script>
+
+    <script src="https://twgljs.org/dist/4.x/twgl-full.min.js"></script>
+
+    <script src='https://threejs.org/build/three.min.js'></script>
+    <script src='https://threejs.org/examples/js/controls/OrbitControls.js'></script>
+    <script src="three.js/examples/js/loaders/RGBELoader.js"></script>
+    <script src="three.js/examples/js/libs/dat.gui.min.js"></script>
+    <script src="three.js/examples/js/libs/stats.min.js"></script>
+    <!--    <script src='three.js/examples/js/controls/PointerLockControls.js'></script>-->
+
+    <link rel="stylesheet" href="src/lib/css/index.css">
+    <script src="src/index.js"></script>
+
+    <link rel="stylesheet" href="src/lib/css/progress.css">
+    <script src="src/lib/js/progress.js"></script>
+    <script src="src/globals.js"></script>
+    <script src="src/utils.js"></script>
+    <script src="src/glyphPaths.js"></script>
+    <script src="src/glyphConfig.js"></script>
+    <script src="src/classColors.js"></script>
+    <script src="src/particles.js"></script>
+    <script src="src/dataLoader.js"></script>
+    <script src="src/config.js"></script>
+    <script src="src/scene.js"></script>
+    <script src="src/content.js"></script>
+    <script src="src/sphere_data.js"></script>
+    <script src="src/sphere_sim_data.js"></script>
+    <script src="src/cell_maker.js"></script>
+    <script src="src/app.js"></script>
+    <script src="src/lights.js"></script>
+    <script src="src/shaders/glyphs/vertex.js"></script>
+    <script src="src/shaders/glyphs/fragment.js"></script>
+    <script src="src/animation_loop.js"></script>
+    <script src="src/post_scene.js"></script>
+
+    <style>
+        button, input, optgroup, select, textarea {color: #1b1b1b;}
+    </style>
+
+
+</head>
+<body>
+
+
+<div class="container-fluid aligned-middle stack-top" id="preloader">
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="specificChart" class="donut-size">
+                <div class="pie-wrapper">
+                        <span class="label">
+                            <span class="num">0</span><span class="smaller">%</span>
+                        </span>
+                    <div class="pie">
+                        <div class="left-side half-circle"></div>
+                        <div class="right-side half-circle"></div>
+                    </div>
+                    <div class="shadow"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="text-center">
+                <p>Num of spots: <span id="datapoints" class="meter">0</span></p>
+                <p>Size: <span id="mb" class="meter">0MB</span></p>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12" id="wait_chart">
+            Building the chart. Please wait...
+        </div>
+        <script>$('#wait_chart').hide()</script>
+    </div>
+</div>
+
+<div id="legend" class="map-content">
+    <a id="legend-link" target="_blank">Gene Panel &raquo;</a>
+    <script>$('#legend').hide();</script>
+</div>
+
+<canvas class="webgl"></canvas>
+<script>
+    localStorage.clear();
+    console.log('Local storage cleared');
+
+    window.onload = run();
+
+    function removePreloader() {
+        $('#preloader').delay(350).fadeOut(250); // will fade out the white DIV that covers the website.
+        $('body').delay(350).css({'overflow': 'visible'});
+    }
+
+    // this will be watching if something has been saved to local storage. If yes then it
+    // triggers some action. It acts as an intermediate layer to pass communication between the datatables grid and
+    // the viewer. On another browser tab, user selection on the checkboxes results in data get saved on local storage.
+    // This is picked up here, the javacript code reads the selected values and triggers the appropriate action
+    var storageMonitor = function () {
+        return function () {
+            var state = JSON.parse(localStorage['updated_state']);
+            var enter = state.enter, // data to add
+                exit = state.exit;   // data to remove
+
+            exit.forEach(d => hideParticles(d));
+            enter.forEach(d => showParticles(d));
+
+        };
+    }();
+    $(window).on("storage", storageMonitor);
+
+
+</script>
+
+
+</body>
+</html>
