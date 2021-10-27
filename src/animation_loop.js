@@ -50,59 +50,5 @@ function setHightlightSphere(instanceId, isHighlighting) {
 }
 
 function render() {
-    var c2s,
-        _c2s;
-
-    RAYCASTER.setFromCamera(MOUSE, CAMERA);
-    const intersection = RAYCASTER.intersectObject(INSTANCEDMESH.front_face.instancedMesh);
-    if (intersection.length > 0) {
-        var instanceId = intersection[0].instanceId;
-        if (instanceId != PREV_INSTANCE_ID) {
-            setHightlightSphere(instanceId, true)
-            // setInstanceColor(instanceId, true);
-            // setInstanceColor(PREV_INSTANCE_ID, false);
-            PREV_INSTANCE_ID = instanceId;
-            $('html,body').css('cursor', 'pointer');
-        }
-    } else {
-        setInstanceColor(PREV_INSTANCE_ID, false);
-        PREV_INSTANCE_ID = -1;
-        $('html,body').css('cursor', 'default');
-    }
-    //
-    // if (intersection.length > 0) {
-    //     const instanceId = intersection[0].instanceId;
-    //     INSTANCEDMESH.front_face.instancedMesh.setColorAt(instanceId, COLOR.setHex(Math.random() * 0xffffff));
-    //     INSTANCEDMESH.front_face.instancedMesh.instanceColor.needsUpdate = true;
-    //     $('html,body').css('cursor', 'pointer');
-    // } else {
-    //     $('html,body').css('cursor', 'default');
-    // }
-
-    // LOD_ramp()
-    SCENE.children.forEach(d => {
-        c2s = CAMERA.position.distanceTo(SCENE.position);
-        var lod = LOD_ramp(c2s);
-        if ((d.type === 'Mesh') && (d.name === 'front_mesh')) {
-            if (lod.level !== _c2s) {
-                console.log('Switching to ' + lod.level);
-                mesh_LOD(lod.w, lod.h);
-                _c2s = lod.level;
-            }
-        } else if ((d.type === 'Mesh') && (d.name === 'back_mesh')) {
-            if (lod.level !== _c2s) {
-                console.log('Switching to ' + lod.level);
-                mesh_LOD(4, 4);
-                _c2s = lod.level;
-            }
-        }
-    });
-
     RENDERER.render(SCENE, CAMERA);
-
-    // adjust wth width of the gui
-    var gui_w = document.getElementsByClassName('dg main a');
-    for (var i = 0; i < gui_w.length; i++) {
-        gui_w[0].style.width = "305px"
-    }
 }
